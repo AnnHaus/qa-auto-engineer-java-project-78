@@ -2,8 +2,10 @@ package hexlet.code.schemas;
 
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public final class MapSchema extends BaseSchema<Map<?, ?>> {
-    private Map<?, BaseSchema> shapeSchemas;
+    // Используем сырой тип Map, чтобы Java не ругалась на несовместимость дженериков
+    private Map shapeSchemas;
 
     public MapSchema required() {
         this.isRequired = true;
@@ -16,7 +18,7 @@ public final class MapSchema extends BaseSchema<Map<?, ?>> {
         return this;
     }
 
-    public MapSchema shape(Map<?, BaseSchema> schemas) {
+    public MapSchema shape(Map schemas) {
         this.shapeSchemas = schemas;
 
         checks.put("shape", value -> {
@@ -28,9 +30,10 @@ public final class MapSchema extends BaseSchema<Map<?, ?>> {
             }
 
             // Проходим по всем правилам, которые задали в shape
-            for (Map.Entry<?, BaseSchema> entry : shapeSchemas.entrySet()) {
+            for (Object obj : shapeSchemas.entrySet()) {
+                Map.Entry entry = (Map.Entry) obj;
                 Object key = entry.getKey();
-                BaseSchema schema = entry.getValue();
+                BaseSchema schema = (BaseSchema) entry.getValue();
 
                 // Получаем значение из проверяемой карты по этому ключу
                 Object actualValue = value.get(key);
