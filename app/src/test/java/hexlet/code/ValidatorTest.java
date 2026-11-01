@@ -80,7 +80,7 @@ public final class ValidatorTest {
 
         MapSchema shapeSchema = v.map();
 
-        Map<String, BaseSchema<String>> schemas = new HashMap<>();
+        Map<String, BaseSchema> schemas = new HashMap<>();
         schemas.put("firstName", v.string().required());
         schemas.put("lastName", v.string().required().minLength(2));
 
@@ -101,4 +101,49 @@ public final class ValidatorTest {
         human3.put("lastName", "B");
         assertFalse(shapeSchema.isValid(human3));
     }
+    @Test
+    void testStringSchemaUpdate() {
+        Validator v = new Validator();
+        var schema = v.string();
+        schema.minLength(5);
+        assertFalse(schema.isValid("cat"));
+        schema.minLength(2);
+        assertTrue(schema.isValid("cat"));
+    }
+
+    @Test
+    void testNumberSchemaUpdate() {
+        Validator v = new Validator();
+        var schema = v.number();
+        schema.range(5, 10);
+        assertTrue(schema.isValid(5));
+        assertTrue(schema.isValid(10));
+        assertFalse(schema.isValid(4));
+        schema.range(4, 10);
+        assertTrue(schema.isValid(4));
+    }
+
+    @Test
+    void testMapSchemaShapeUpdate() {
+        Validator v = new Validator();
+        var schema = v.map();
+
+        // Сначала правило: имя должно быть строкой длиной от 2 символов
+        java.util.Map<String, BaseSchema> schemas1 = new java.util.HashMap<>();
+        schemas1.put("name", v.string().minLength(2));
+        schema.shape(schemas1);
+
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("name", "Anna");
+        assertTrue(schema.isValid(data)); // "Anna" подходит (длина 4)
+
+        // Обновляем shape: теперь минимальная длина должна быть 10 символов!
+        java.util.Map<String, BaseSchema> schemas2 = new java.util.HashMap<>();
+        schemas2.put("name", v.string().minLength(10));
+        schema.shape(schemas2);
+
+        // Теперь "Anna" (длина 4) не должна проходить проверку, так как нужно 10!
+        assertFalse(schema.isValid(data));
+    }
+
 }
