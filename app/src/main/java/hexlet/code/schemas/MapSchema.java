@@ -4,7 +4,6 @@ import java.util.Map;
 
 @SuppressWarnings("rawtypes")
 public final class MapSchema extends BaseSchema<Map<?, ?>> {
-    // Используем сырой тип Map, чтобы Java не ругалась на несовместимость дженериков
     private Map shapeSchemas;
 
     public MapSchema required() {
@@ -29,16 +28,13 @@ public final class MapSchema extends BaseSchema<Map<?, ?>> {
                 return true;
             }
 
-            // Проходим по всем правилам, которые задали в shape
             for (Object obj : shapeSchemas.entrySet()) {
                 Map.Entry entry = (Map.Entry) obj;
                 Object key = entry.getKey();
                 BaseSchema schema = (BaseSchema) entry.getValue();
 
-                // Получаем значение из проверяемой карты по этому ключу
                 Object actualValue = value.get(key);
 
-                // Запускаем валидацию этого значения встроенной схемой
                 if (!schema.isValid(actualValue)) {
                     return false;
                 }

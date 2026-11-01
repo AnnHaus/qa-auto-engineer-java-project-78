@@ -128,7 +128,6 @@ public final class ValidatorTest {
         Validator v = new Validator();
         var schema = v.map();
 
-        // Сначала правило: имя должно быть строкой длиной от 2 символов
         java.util.Map<String, BaseSchema> schemas1 = new java.util.HashMap<>();
         schemas1.put("name", v.string().minLength(2));
         schema.shape(schemas1);
@@ -137,12 +136,10 @@ public final class ValidatorTest {
         data.put("name", "Anna");
         assertTrue(schema.isValid(data)); // "Anna" подходит (длина 4)
 
-        // Обновляем shape: теперь минимальная длина должна быть 10 символов!
         java.util.Map<String, BaseSchema> schemas2 = new java.util.HashMap<>();
         schemas2.put("name", v.string().minLength(10));
         schema.shape(schemas2);
 
-        // Теперь "Anna" (длина 4) не должна проходить проверку, так как нужно 10!
         assertFalse(schema.isValid(data));
     }
 
